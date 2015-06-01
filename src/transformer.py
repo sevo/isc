@@ -1,7 +1,7 @@
 import distance_matrix, euclidean_operator, symbol
 import normalization as norm
 
-class Tranformer:
+class Transformer:
     def __init__(self, window_size, step_size, limit_distance,
                  normalization=norm.ZNormalization,
                  distance_operator=euclidean_operator.EuclideanOperator()):
