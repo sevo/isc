@@ -57,8 +57,10 @@ class Dendrogram:
 
         indexes = D['leaves']
 
-        for i in range(0, 6):
-            ax = fig.add_axes([0.33,0.1 + (i*0.1),0.57,0.1]) if orientation == 'right' else fig.add_axes([0.10,0.1 + (i*0.1),0.57,0.1])
+        series_plot_height = 0.6 / len(labels)
+        for i in range(0, len(labels)):
+
+            ax = fig.add_axes([0.33,0.1 + (i*series_plot_height),0.57,series_plot_height]) if orientation == 'right' else fig.add_axes([0.10,0.1 + (i*series_plot_height),0.57,series_plot_height])
             pylab.plot(data[labels[indexes[i]]])
             p = pylab.gca()
             p.axes.get_xaxis().set_ticks([])
