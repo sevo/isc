@@ -1,24 +1,18 @@
 import distance_matrix, euclidean_operator, symbol
 import normalization as norm
 
-class Transformer:
+class IncrementalTransformer:
     def __init__(self, window_size, step_size, limit_distance,
                  normalization=norm.ZNormalization,
                  distance_operator=euclidean_operator.EuclideanOperator()):
-        """
-        :param window_size: symbol length
-        :param step_size: step between two symbols
-        :param limit_distance: limit distance of symbol time series from the cluster centre
-        :param normalization: normalization
-        :param distance_operator: distance operator used for symbol comparison
-        :return:
-        """
         self.limit_distance = limit_distance
         self.window_size = window_size
         self.step_size = step_size
         self.distance_operator = distance_operator
         self.distance_matrix = distance_matrix.DistanceMatrix(distance_operator)
         self.normalization = normalization
+        self.pattern_queue = [] # queue of started symbols
+        self.counter = 0 # processed values counter
 
     def get_similar(self, series):
         """
@@ -35,27 +29,37 @@ class Transformer:
         self.distance_matrix.add(new_symbol)
         return new_symbol
 
+    def add(self, point):
+        """
+        Adds one point to the transformed time series.
+        :param point: one time series point
+        :return: new symbol if the added point finishes started symbol or None if not
+        """
+        if self.counter % self.step_size == 0:
+            self.pattern_queue.append([])
+
+        for pattern in self.pattern_queue:
+            pattern.append(point)
+
+        self.counter += 1
+
+        if (self.counter - self.window_size) >= 0 and (self.counter - self.window_size) % self.step_size == 0:
+            pattern = self.pattern_queue.pop(0)
+            return self.get_similar(pattern)
+        else:
+            return None
+
     def transform(self, whole_series):
         """
-        transforms time series into sequence of symbols
-        :param whole_series: time series to be transformed
-        :return: symbol sequence
+        transforms whole time series into symbols. It builds on previously transformed time series
+        :param whole_series: time series
+        :return: array of new symbols
         """
         symbol_series = []
-        pattern_queue = [] # pattern_queue.pop(0) # removes and returns first element
 
-        counter = 0
         for point in whole_series:
-            if counter % self.step_size == 0:
-                pattern_queue.append([])
-
-            for pattern in pattern_queue:
-                pattern.append(point)
-
-            counter += 1
-
-            if (counter - self.window_size) >= 0 and (counter - self.window_size) % self.step_size == 0:
-                pattern = pattern_queue.pop(0)
-                symbol_series.append(self.get_similar(pattern))
+            new_symbol = self.add(point)
+            if new_symbol is not None:
+                symbol_series.append(new_symbol)
 
         return symbol_series
