@@ -19,6 +19,7 @@ class Transformer:
         self.distance_operator = distance_operator
         self.distance_matrix = distance_matrix.DistanceMatrix(distance_operator)
         self.normalization = normalization
+        self.pattern_queue = []
 
     def get_similar(self, series):
         """
@@ -42,20 +43,20 @@ class Transformer:
         :return: symbol sequence
         """
         symbol_series = []
-        pattern_queue = [] # pattern_queue.pop(0) # removes and returns first element
+        self.pattern_queue = [] # pattern_queue.pop(0) # removes and returns first element
 
         counter = 0
         for point in whole_series:
             if counter % self.step_size == 0:
-                pattern_queue.append([])
+                self.pattern_queue.append([])
 
-            for pattern in pattern_queue:
+            for pattern in self.pattern_queue:
                 pattern.append(point)
 
             counter += 1
 
             if (counter - self.window_size) >= 0 and (counter - self.window_size) % self.step_size == 0:
-                pattern = pattern_queue.pop(0)
+                pattern = self.pattern_queue.pop(0)
                 symbol_series.append(self.get_similar(pattern))
 
         return symbol_series
