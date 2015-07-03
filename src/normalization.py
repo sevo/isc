@@ -18,6 +18,7 @@ class Normalization:
         the normalization object is used when we do not want to determine normalization coefficients for every
         time series, but rather to have common coefficients for multiple time series
         """
+        self.normalize = self._normalize
         self.shift = 0
         self.scale = 1
 
@@ -37,7 +38,7 @@ class Normalization:
         """
         self.shift, self.scale = self.__class__.coefficients(series)
 
-    def normalize(self, series):
+    def _normalize(self, series):
         """
         normalization using stored coefficients
         :param series: time series
