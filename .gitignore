@@ -1,1 +1,4 @@
 /.idea/
+*.png
+*-checkpoint.ipynb
+*.pyc

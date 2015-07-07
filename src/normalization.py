@@ -19,6 +19,7 @@ class Normalization:
         time series, but rather to have common coefficients for multiple time series
         """
         self.normalize = self._normalize
+        self.denormalize = self._denormalize
         self.shift = 0
         self.scale = 1
 
@@ -45,6 +46,14 @@ class Normalization:
         :return: [normalized series, shift, scale]
         """
         return self.__class__.base_normalization(series, self.shift, self.scale)
+
+    def _denormalize(self, series):
+        """
+        normalization using stored coefficients
+        :param series: time series
+        :return: [normalized series, shift, scale]
+        """
+        return self.__class__.base_normalization(series, -self.shift, 1/self.scale)
 
     @classmethod
     def coefficients(cls, series):

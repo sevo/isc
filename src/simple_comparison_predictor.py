@@ -1,13 +1,4 @@
-from incremental_transformer import IncrementalTransformer
-import numpy as np
-
-# todo, objekt, ktory bude pouzivat transofrmer na to aby na zaklade neho spocital predikciu
-# mozno na toto nebude treba samostatnu triedu, ale bude to sucast transformera, pripadne ako nejaky mixin. V pythone funguje multiple inheritance
-# todo, bude treba pridat metody na vyhodnocovanie chyby predikcie
-# todo, na zaciatku to mozem napasovat na energodata a potom zovseobecnit
-# todo, vzdy po tizdny treba updatovat koeficienty normalizacie aby sa odstranili sezonne vplyvy vacsie ako 1 tyzden
-
-class Predictor:
+class SimpleComparisonPredictor:
     def __init__(self, transformer):
         self.transformer = transformer
 
