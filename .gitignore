@@ -2,3 +2,6 @@
 *.png
 *-checkpoint.ipynb
 *.pyc
+/.cache/
+/test/.cache/
+

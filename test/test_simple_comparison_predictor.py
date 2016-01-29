@@ -10,4 +10,4 @@ class TestPredictor:
         symbols = trans.transform(sequence)
         predictor = pred.SimpleComparisonPredictor(trans)
         prediction = predictor.predict()
-        assert (prediction.series == symbols[2].series).all()
+        assert (prediction.series == symbols[2].unscaled.series).all()

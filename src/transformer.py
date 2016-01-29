@@ -1,10 +1,10 @@
-import distance_matrix, euclidean_operator, symbol
+import distance_matrix, euclidean_operator, scaled_symbol
 import normalization as norm
 
 class Transformer:
     def __init__(self, window_size, step_size, limit_distance,
                  normalization=norm.ZNormalization,
-                 distance_operator=euclidean_operator.EuclideanOperator()):
+                 distance_operator=euclidean_operator.EuclideanOperator(), symbol_alphabet=distance_matrix.DistanceMatrix):
         """
         :param window_size: symbol length
         :param step_size: step between two symbols
@@ -17,7 +17,7 @@ class Transformer:
         self.window_size = window_size
         self.step_size = step_size
         self.distance_operator = distance_operator
-        self.distance_matrix = distance_matrix.DistanceMatrix(distance_operator)
+        self.symbol_alphabet = symbol_alphabet(distance_operator, limit_distance)
         self.normalization = normalization
         self.pattern_queue = []
 
@@ -28,13 +28,8 @@ class Transformer:
         :return: most similar symbol from the dictionary or new one
         """
         normalized, scale_shift, scale_multiple = self.normalization.normalize(series)
-        for key_symbol in self.distance_matrix.distances.keys():
-            if key_symbol.symbol_shift == symbol_shift and self.distance_operator.distance(key_symbol.series, normalized) < self.limit_distance:
-                new_symbol = symbol.Symbol(normalized, scale_shift, scale_multiple, key_symbol.id, key_symbol.symbol_shift)
-                return new_symbol
-        new_symbol = symbol.Symbol(normalized, scale_shift, scale_multiple, symbol_shift=symbol_shift)
-        self.distance_matrix.add(new_symbol)
-        return new_symbol
+        unscaled_symbol = self.symbol_alphabet.get_similar(normalized, symbol_shift)
+        return scaled_symbol.ScaledSymbol(unscaled_symbol, scale_shift, scale_multiple)
 
     def transform(self, whole_series):
         """

@@ -11,4 +11,4 @@ class TestPredictor:
         predictor = pred.ShiftComparisonPredictor(trans)
         prediction = predictor.predict()
         # pdb.set_trace()
-        assert (prediction.series == symbols[1].series).all()
+        assert (prediction.series == symbols[1].unscaled.series).all()

@@ -5,7 +5,7 @@ class SimpleComparisonPredictor:
     def _search_part(self, part):
         min_dist = float("inf")
         search_result = None
-        for key_symbol in self.transformer.distance_matrix.distances.keys():
+        for key_symbol in self.transformer.symbol_alphabet.distances.keys():
             dist = self.transformer.distance_operator.distance(key_symbol.series[0:(len(part))], part)
             if dist < min_dist:
                 min_dist = dist

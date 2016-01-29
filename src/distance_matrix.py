@@ -1,7 +1,10 @@
-class DistanceMatrix:
-    def __init__(self, distance_operator):
+import symbol_alphabet
+import symbol
+
+class DistanceMatrix(symbol_alphabet.SymbolAlphabet):
+    def __init__(self, distance_operator, limit_distance=0.0):
+        symbol_alphabet.SymbolAlphabet.__init__(self, distance_operator, limit_distance)
         self.distances = {}
-        self.distance_operator = distance_operator
 
     def size(self):
         return len(self.distances)
@@ -22,5 +25,15 @@ class DistanceMatrix:
             return self.distances[b][a]
         else:
             return None
+            
+            
+    def get_similar(self, normalized, symbol_shift):
+        for key_symbol in self.distances.keys():
+            if key_symbol.symbol_shift == symbol_shift and self.distance_operator.distance(key_symbol.series, normalized) < self.limit_distance:
+                new_symbol = symbol.Symbol(key_symbol.series, key_symbol.id, key_symbol.symbol_shift)
+                return new_symbol
+        new_symbol = symbol.Symbol(normalized, symbol_shift=symbol_shift)
+        self.add(new_symbol)
+        return new_symbol
 
 

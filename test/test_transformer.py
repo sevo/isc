@@ -9,8 +9,8 @@ class TestTransformer:
         trans = transformer.Transformer(3,1,0.1)
         symbols = trans.transform(sequence)
         assert len(symbols) == 10
-        assert symbols[0].symbol_shift == 0
-        assert trans.distance_matrix.size() == 5
+        assert symbols[0].unscaled.symbol_shift == 0
+        assert trans.symbol_alphabet.size() == 5
         assert [symbol.scale_shift for symbol in symbols] == [2.0, 3.0, 4.0, 5.0, 4.0, 3.0, 2.0, 3.0, 4.0, 5.0]
 
     def test_reusable_normalization(self):
@@ -21,6 +21,6 @@ class TestTransformer:
         symbols = trans.transform(sequence)
         assert len(symbols) == 10
         # pdb.set_trace()
-        assert trans.distance_matrix.size() == 6
+        assert trans.symbol_alphabet.size() == 6
         assert [symbol.scale_shift for symbol in symbols] == [3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5, 3.5]
 

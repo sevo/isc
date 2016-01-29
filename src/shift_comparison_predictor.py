@@ -10,7 +10,7 @@ class ShiftComparisonPredictor:
         min_dist = float("inf")
         norm_part, part_shift, part_multiple = self.transformer.normalization.normalize(part)
         search_result = None
-        for key_symbol in self.transformer.distance_matrix.distances.keys():
+        for key_symbol in self.transformer.symbol_alphabet.distances.keys():
             if key_symbol.symbol_shift == symbol_shift:
                 dist = self.transformer.distance_operator.distance(key_symbol.series[0:(len(norm_part))], norm_part)
                 if dist < min_dist:
