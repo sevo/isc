@@ -21,7 +21,7 @@ class Transformer:
         self.normalization = normalization
         self.pattern_queue = []
 
-    def get_similar(self, series):
+    def get_similar(self, series, symbol_shift=0):
         """
         Returns most similar symbol from the dictionary. If no symbol closer than limit_distance exists, it creates one
         :param series: symbol time series
@@ -29,10 +29,10 @@ class Transformer:
         """
         normalized, scale_shift, scale_multiple = self.normalization.normalize(series)
         for key_symbol in self.distance_matrix.distances.keys():
-            if self.distance_operator.distance(key_symbol.series, normalized) < self.limit_distance:
-                new_symbol = symbol.Symbol(normalized, scale_shift, scale_multiple, key_symbol.id)
+            if key_symbol.symbol_shift == symbol_shift and self.distance_operator.distance(key_symbol.series, normalized) < self.limit_distance:
+                new_symbol = symbol.Symbol(normalized, scale_shift, scale_multiple, key_symbol.id, key_symbol.symbol_shift)
                 return new_symbol
-        new_symbol = symbol.Symbol(normalized, scale_shift, scale_multiple)
+        new_symbol = symbol.Symbol(normalized, scale_shift, scale_multiple, symbol_shift=symbol_shift)
         self.distance_matrix.add(new_symbol)
         return new_symbol
 
@@ -45,18 +45,19 @@ class Transformer:
         symbol_series = []
         self.pattern_queue = [] # pattern_queue.pop(0) # removes and returns first element
 
-        counter = 0
+        self.counter = 0
         for point in whole_series:
-            if counter % self.step_size == 0:
+            if self.counter % self.step_size == 0:
                 self.pattern_queue.append([])
 
             for pattern in self.pattern_queue:
                 pattern.append(point)
 
-            counter += 1
+            self.counter += 1
 
-            if (counter - self.window_size) >= 0 and (counter - self.window_size) % self.step_size == 0:
+            if (self.counter - self.window_size) >= 0 and (self.counter - self.window_size) % self.step_size == 0:
+                symbol_shift = (self.counter % self.window_size) / self.step_size
                 pattern = self.pattern_queue.pop(0)
-                symbol_series.append(self.get_similar(pattern))
+                symbol_series.append(self.get_similar(pattern, symbol_shift))
 
         return symbol_series

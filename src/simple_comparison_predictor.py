@@ -9,7 +9,7 @@ class SimpleComparisonPredictor:
             dist = self.transformer.distance_operator.distance(key_symbol.series[0:(len(part))], part)
             if dist < min_dist:
                 min_dist = dist
-                search_result = key_symbol.series
+                search_result = key_symbol
         return search_result
 
     def predict(self, pattern_order=0):

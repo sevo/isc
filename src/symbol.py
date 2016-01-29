@@ -6,11 +6,12 @@ class Symbol:
         cls.max_index = cls.max_index+1
         return cls.max_index
 
-    def __init__(self, series, scale_shift=None, scale_multiple=None, id=None, ):
+    def __init__(self, series, scale_shift=None, scale_multiple=None, id=None, symbol_shift=None):
         self.series = series
         self.id = id or self.__class__.next_index()
         self.scale_shift = scale_shift or 0
         self.scale_multiple = scale_multiple or 1
+        self.symbol_shift = symbol_shift
 
     def __eq__(self, other):
         return self.id == other.id

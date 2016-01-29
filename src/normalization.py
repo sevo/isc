@@ -11,7 +11,7 @@ class Normalization:
         :param scale: scale to normalize by
         :return: [normalized series, shift, scale]
         """
-        return [(series - shift)/scale, shift, scale]
+        return [(np.array(series) - float(shift))/scale, shift, scale]
 
     def __init__(self):
         """
