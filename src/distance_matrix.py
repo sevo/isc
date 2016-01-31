@@ -12,7 +12,7 @@ class DistanceMatrix(symbol_alphabet.SymbolAlphabet):
     def symbols(self):
         return self.distances.keys()
 
-    def add(self, symbol):
+    def _add(self, symbol):
         new_distances = {symbol: 0.0}
         for other_symbol in self.distances.keys():
             new_distances[other_symbol] = self.distance_operator.distance(symbol.series, other_symbol.series)
@@ -33,7 +33,7 @@ class DistanceMatrix(symbol_alphabet.SymbolAlphabet):
                 new_symbol = symbol.Symbol(key_symbol.series, key_symbol.id, key_symbol.symbol_shift)
                 return new_symbol
         new_symbol = symbol.Symbol(normalized, symbol_shift=symbol_shift)
-        self.add(new_symbol)
+        self._add(new_symbol)
         return new_symbol
 
 

@@ -16,11 +16,6 @@ class SymbolAlphabet:
         """Returns a list of stored symbols"""
 
     @abc.abstractmethod
-    def add(self, symbol):
-        """Adds a symbol into the alphabet"""
-        raise NotImplementedError
-
-    @abc.abstractmethod
     def distance(self, a, b):
         """Returns distacne between symbols"""
         

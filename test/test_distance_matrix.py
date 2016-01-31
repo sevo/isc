@@ -7,8 +7,8 @@ class TestDistanceMatrix:
         matrix = distance_matrix.DistanceMatrix(operator)
         sym1 = symbol.Symbol(pd.Series([1, 0]))
         sym2 = symbol.Symbol(pd.Series([1, 0]))
-        matrix.add(sym1)
-        matrix.add(sym2)
+        matrix._add(sym1)
+        matrix._add(sym2)
         assert matrix.distance(sym1, sym2) == 0.0
 
     def test_add(self):
@@ -16,8 +16,8 @@ class TestDistanceMatrix:
         matrix = distance_matrix.DistanceMatrix(operator)
         sym1 = symbol.Symbol(pd.Series([1, 0]))
         sym2 = symbol.Symbol(pd.Series([0, 1]))
-        matrix.add(sym1)
-        matrix.add(sym2)
+        matrix._add(sym1)
+        matrix._add(sym2)
         assert matrix.distance(sym1, sym2) == 1.4142135623730951
 
     def test_missing(self):
@@ -25,7 +25,7 @@ class TestDistanceMatrix:
         matrix = distance_matrix.DistanceMatrix(operator)
         sym1 = symbol.Symbol(pd.Series([1, 0]))
         sym2 = symbol.Symbol(pd.Series([0, 1]))
-        matrix.add(sym1)
+        matrix._add(sym1)
         assert matrix.distance(sym1, sym2) == None
 
     def test_add_multiple(self):
@@ -35,10 +35,10 @@ class TestDistanceMatrix:
         sym2 = symbol.Symbol(pd.Series([0, 1]))
         sym3 = symbol.Symbol(pd.Series([0.5, 1]))
         sym4 = symbol.Symbol(pd.Series([0.5, 0.5]))
-        matrix.add(sym1)
-        matrix.add(sym2)
-        matrix.add(sym3)
-        matrix.add(sym4)
+        matrix._add(sym1)
+        matrix._add(sym2)
+        matrix._add(sym3)
+        matrix._add(sym4)
         assert matrix.distance(sym1, sym2) == 1.4142135623730951
         assert matrix.distance(sym2, sym1) == 1.4142135623730951
         assert matrix.distance(sym1, sym3) == 1.1180339887498949
