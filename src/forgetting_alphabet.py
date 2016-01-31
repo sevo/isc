@@ -8,7 +8,6 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
         self.distances = {}
         self.counter_number = counter_number
         self.counters = {}
-        self.most_frequent = (None, 0) # the symbol with the highest value of the counter meant as caching
     
     def size(self):
         """Returns size of the alphabet"""
@@ -49,6 +48,7 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
         for other_symbol in self.distances.keys():
             new_distances[other_symbol] = self.distance_operator.distance(normalized, other_symbol.series)
         self.distances[new_symbol] = new_distances
+        return new_symbol
         
     def _remove(self, symbol):
         """Removes a symbols from counters and from distance matrix"""
@@ -65,7 +65,7 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
             self.counters[similar_symbol] = self.counters[similar_symbol] + 1
             return similar_symbol
         elif len(self.counters) < self.counter_number: # there is space in the alphabet, add the symbol then 
-            self._add(normalized, symbol_shift)
+            return self._add(normalized, symbol_shift)
         else:
             # no match found, no room left, we have to lower counters and possibly delete items from alphabet
             symbol_list = self.counters.keys() 

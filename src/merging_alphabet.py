@@ -11,10 +11,6 @@ class MergingAlphabet(symbol_alphabet.SymbolAlphabet):
         """Returns a list of stored symbols"""
         pass
 
-    def add(self, symbol):
-        """Adds a symbol into the alphabet"""
-        pass
-
     def distance(self, a, b):
         """Returns distacne between symbols"""
         pass
