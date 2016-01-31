@@ -5,31 +5,30 @@ from collections import OrderedDict
 class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
     
     class LastUpdatedOrderedDict(OrderedDict):
-    'Store items in the order the keys were last added'
-
+        """Store items in the order the keys were last added"""
         def __setitem__(self, key, value):
             if key in self:
                 del self[key]
             OrderedDict.__setitem__(self, key, value)
     
     class GranularityAlphabet():
-        def __init__(self, distance_operator, limit_distance=0.0, counter_number=100)
-        self.counter_number = counter_number
-        self.counters = {}
+        def __init__(self, distance_operator, limit_distance=0.0, counter_number=100):
+            self.counter_number = counter_number
+            self.counters = {}
         
         def _find_symbol(self, normalized, symbol_shift):
-        """returns a tuple: (similar_symbol, closest_symbol). Similar symbol has distance < limit_distance, closest_symbol is the similar_symbol or has minimal distance among all symbols in alphabet"""
-        closest = None
-        min_distance = float('inf')
-        for key_symbol in self.distances.keys():
-            if key_symbol.symbol_shift == symbol_shift: 
-                actual_distance = self.distance_operator.distance(key_symbol.series, normalized)
-                if actual_distance < min_distance:
-                    closest = key_symbol
-                    min_distance = actual_distance
-                if  actual_distance < self.limit_distance:
-                    return (key_symbol, closest, min_distance)
-        return (None, closest. min_distance)
+            """returns a tuple: (similar_symbol, closest_symbol). Similar symbol has distance < limit_distance, closest_symbol is the similar_symbol or has minimal distance among all symbols in alphabet"""
+            closest = None
+            min_distance = float('inf')
+            for key_symbol in self.distances.keys():
+                if key_symbol.symbol_shift == symbol_shift: 
+                    actual_distance = self.distance_operator.distance(key_symbol.series, normalized)
+                    if actual_distance < min_distance:
+                        closest = key_symbol
+                        min_distance = actual_distance
+                    if  actual_distance < self.limit_distance:
+                        return (key_symbol, closest, min_distance)
+            return (None, closest. min_distance)
         
         def _add(self, normalized, symbol_shift):
             new_symbol = s.Symbol(normalized, symbol_shift=symbol_shift)
