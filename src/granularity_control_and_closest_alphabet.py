@@ -2,7 +2,7 @@ import symbol_alphabet
 import symbol
 from collections import OrderedDict
 
-class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
+class GranularityControlAndClosestAlphabet(symbol_alphabet.SymbolAlphabet):
     
     class LastUpdatedOrderedDict(OrderedDict):
         """Store items in the order the keys were last added"""
@@ -18,12 +18,17 @@ class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
         
         def _find_symbol(self, normalized, symbol_shift):
             """returns a tuple: (similar_symbol, closest_symbol). Similar symbol has distance < limit_distance, closest_symbol is the similar_symbol or has minimal distance among all symbols in alphabet"""
+            closest = None
+            min_distance = float('inf')
             for key_symbol in self.distances.keys():
                 if key_symbol.symbol_shift == symbol_shift: 
                     actual_distance = self.distance_operator.distance(key_symbol.series, normalized)
+                    if actual_distance < min_distance:
+                        closest = key_symbol
+                        min_distance = actual_distance
                     if  actual_distance < self.limit_distance:
-                        return key_symbol
-            return None
+                        return (key_symbol, closest, min_distance)
+            return (None, closest. min_distance)
         
         def _add(self, normalized, symbol_shift):
             new_symbol = s.Symbol(normalized, symbol_shift=symbol_shift)
@@ -45,12 +50,12 @@ class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
         def get_similar(self, normalized, symbol_shift):
             """Returns a quadruplet, (similar symbol from the alphabet, closest symbol, distance of the closest symbol list of symbols removed from the alphabet)"""
             # todo, treba porozmyslat, ci sa nema znizovat pocetnost inym cislom ako 1. Podla mna to ale teraz nieje potrebne
-            similar_symbol = self._find_symbol(normalized, symbol_shift)
+            similar_symbol, closest_symbol, min_distance = self._find_symbol(normalized, symbol_shift)
             if similar_symbol:
                 self.counters[similar_symbol] = self.counters[similar_symbol] + 1
-                return (similar_symbol, [])
+                return (similar_symbol, None, float('inf'), [])
             elif len(self.counters) < self.counter_number: # there is space in the alphabet, add the symbol then 
-                return (self._add(normalized, symbol_shift), [])
+                return (self._add(normalized, symbol_shift), None, float('inf'), [])
             else:
                 # no match found, no room left, we have to lower counters and possibly delete items from alphabet
                 symbol_list = self.counters.keys() 
@@ -60,7 +65,7 @@ class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
                     if self.counters[key_symbol] <= 0:
                         self.remove(key_symbol)
                         removed.append(key_symbol)
-                return (None, removed)
+                return (None, closest_symbol, min_distance, removed)
         
         
     
@@ -82,6 +87,7 @@ class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
 
     def distance(self, a, b):
         """Returns distacne between symbols"""
+        
         if (a,b) in self.distances:
             return self.distances[(a,b)]
         elif (b,a) in self.distances:
@@ -97,10 +103,12 @@ class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
     def get_similar(self, normalized, symbol_shift):
         """Returns similar symbol from the alphabet"""
         
+        closest = None
+        min_dist = float('inf')
         old_removed = []
         previous_alphabet = None
         for alphabet in self.alphabets:
-            similar_symbol, removed = alphabet.get_similar(normalized, symbol_shift)
+            similar_symbol, closest_symbol, dist, removed = alphabet.get_similar(normalized, symbol_shift)
             if old_removed:
                 sorted_counters = sorted(alphabet.counters.items(), key=operator.itemgetter(1), reverse=True)
                 for i in range(len(old_removed)):
@@ -116,7 +124,10 @@ class GranularityControlAlphabet(symbol_alphabet.SymbolAlphabet):
             if similar_symbol: 
                 return similar_symbol
                 
-        return None
+            if dist < min_dist: # at this moment we either found the similar symbol, or associated the symbol with a free counter of we have no more space and we have to return the closest symbol.
+                closest = closest_symbol
+                min_dist = dist
+        return closest
             
             
     # pohladaj symbol v abecede. Ak tam je, tak zvys counter

@@ -1,7 +1,7 @@
 import symbol_alphabet
 import symbol as s
 
-class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
+class ListOfLostAlphabet(symbol_alphabet.SymbolAlphabet):
     
     def __init__(self, distance_operator, limit_distance=0.0, counter_number=100):
         symbol_alphabet.SymbolAlphabet.__init__(self, distance_operator, limit_distance)
@@ -28,14 +28,20 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
             
     def _find_symbol(self, normalized, symbol_shift):
         """returns a tuple: (similar_symbol, closest_symbol). Similar symbol has distance < limit_distance, closest_symbol is the similar_symbol or has minimal distance among all symbols in alphabet"""
+        closest = None
+        min_distance = float('inf')
         for key_symbol in self.distances.keys():
             if key_symbol.symbol_shift == symbol_shift: 
-                if  self.distance_operator.distance(key_symbol.series, normalized) < self.limit_distance:
-                    return key_symbol
-        return None
+                actual_distance = self.distance_operator.distance(key_symbol.series, normalized)
+                if actual_distance < min_distance:
+                    closest = key_symbol
+                    min_distance = actual_distance
+                if  actual_distance < self.limit_distance:
+                    return (key_symbol, closest)
+        return (None, closest)
         
     def _add(self, normalized, symbol_shift):
-        new_symbol = s.Symbol(normalized, symbol_shift=symbol_shift)
+        new_symbol = s.ListOfLostSymbol(normalized, symbol_shift=symbol_shift)
         self.counters[new_symbol] = 1
         
         new_distances = {new_symbol: 0.0}
@@ -46,7 +52,16 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
         
     def _remove(self, symbol):
         """Removes a symbols from counters and from distance matrix"""
+        # todo, treba dorobit aby sa spajali zahodene symboli k najpodobnejsiemu z abecedy
         self.counters.pop(symbol, None)
+        
+        min_dist = float('inf')
+        closest_symbol = None
+        for key_symbol, other_distances in enumerate(self.distances):
+            if symbol in other_distances and other_distances[symbol] < min_dist:
+                min_dist = other_distances[symbol]
+                closest_symbol = key_symbol
+        closest_symbol.swallow(symbol)
         
         for _, other_distances in enumerate(self.distances):
             other_distances.pop(symbol, None)
@@ -54,7 +69,7 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
         
     def get_similar(self, normalized, symbol_shift):
         """Returns similar symbol from the alphabet"""
-        similar_symbol = self._find_symbol(normalized, symbol_shift)
+        similar_symbol, closest_symbol = self._find_symbol(normalized, symbol_shift)
         if similar_symbol:
             self.counters[similar_symbol] = self.counters[similar_symbol] + 1
             return similar_symbol
@@ -67,6 +82,6 @@ class ForgettingAlphabet(symbol_alphabet.SymbolAlphabet):
                 self.counters[key_symbol] = self.counters[key_symbol] - 1
                 if self.counters[key_symbol] <= 0:
                     self._remove(key_symbol)
-            return None
+            return closest_symbol
     
     
