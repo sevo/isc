@@ -1,4 +1,4 @@
-import symbol_alphabet
+from alphabet import symbol_alphabet
 import symbol
 
 class DistanceMatrix(symbol_alphabet.SymbolAlphabet):

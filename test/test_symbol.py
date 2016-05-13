@@ -1,5 +1,5 @@
-from ..src import symbol, scaled_symbol
-from ..src import normalization
+from ISC import symbol, scaled_symbol
+from ISC import normalization
 import numpy as np
 import copy
 

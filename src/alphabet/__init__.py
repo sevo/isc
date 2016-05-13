@@ -1,0 +1,11 @@
+__author__ = 'Jakub Sevcech'
+
+import forgetting_alphabet
+import granularity_control_alphabet
+import granularity_control_and_closest_alphabet
+import granularity_control_closest_increment_alphabet
+import list_of_lost_alphabet
+import list_of_lost_closest_alphabet
+import return_closest_and_forget_alphabet
+import return_closest_and_increment_alphabet
+import symbol_alphabet
