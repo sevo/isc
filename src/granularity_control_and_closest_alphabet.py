@@ -1,73 +1,75 @@
 import symbol_alphabet
-import symbol
+import symbol as s
 from collections import OrderedDict
+import operator
+
+
+class LastUpdatedOrderedDict(OrderedDict):
+    """Store items in the order the keys were last added"""
+    def __setitem__(self, key, value):
+        if key in self:
+            del self[key]
+        OrderedDict.__setitem__(self, key, value)
+
+class GranularityAlphabet():
+    def __init__(self, distance_operator, limit_distance=0.0, counter_number=100):
+        self.distance_operator = distance_operator
+        self.limit_distance = limit_distance
+        self.counter_number = counter_number
+        self.counters = {}
+    
+    def _find_symbol(self, normalized, symbol_shift):
+        """returns a tuple: (similar_symbol, closest_symbol). Similar symbol has distance < limit_distance, closest_symbol is the similar_symbol or has minimal distance among all symbols in alphabet"""
+        closest = None
+        min_distance = float('inf')
+        for key_symbol in self.counters.keys():
+            if key_symbol.symbol_shift == symbol_shift: 
+                actual_distance = self.distance_operator.distance(key_symbol.series, normalized)
+                if actual_distance < min_distance:
+                    closest = key_symbol
+                    min_distance = actual_distance
+                if  actual_distance < self.limit_distance:
+                    return (key_symbol, closest, min_distance)
+        return (None, closest, min_distance)
+    
+    def _add(self, normalized, symbol_shift):
+        new_symbol = s.Symbol(normalized, symbol_shift=symbol_shift)
+        self.counters[new_symbol] = 1
+        return new_symbol
+    
+    def add_ascended(self, symbol, count):
+        """
+        Add symol from coarser alphabet to freed place.
+        This method can be called only if symbols were removed from the alphabet and we want to replace them by the most frequent from coarser granularity alphabet
+        """
+        self.counters[symbol] = count
+        
+    def remove(self, symbol):
+        """Removes a symbols from counters and from distance matrix"""
+        """Can be called from get_similar method of this alphabet or when ascending symbol to finer alphabet"""
+        return self.counters.pop(symbol, None)
+        
+    def get_similar(self, normalized, symbol_shift):
+        """Returns a quadruplet, (similar symbol from the alphabet, closest symbol, distance of the closest symbol list of symbols removed from the alphabet)"""
+        # todo, treba porozmyslat, ci sa nema znizovat pocetnost inym cislom ako 1. Podla mna to ale teraz nieje potrebne
+        similar_symbol, closest_symbol, min_distance = self._find_symbol(normalized, symbol_shift)
+        if similar_symbol:
+            self.counters[similar_symbol] = self.counters[similar_symbol] + 1
+            return (similar_symbol, None, float('inf'), [])
+        elif len(self.counters) < self.counter_number: # there is space in the alphabet, add the symbol then 
+            return (self._add(normalized, symbol_shift), None, float('inf'), [])
+        else:
+            # no match found, no room left, we have to lower counters and possibly delete items from alphabet
+            symbol_list = self.counters.keys() 
+            removed = []
+            for key_symbol in symbol_list:
+                self.counters[key_symbol] = self.counters[key_symbol] - 1
+                if self.counters[key_symbol] <= 0:
+                    self.remove(key_symbol)
+                    removed.append(key_symbol)
+            return (None, closest_symbol, min_distance, removed)
 
 class GranularityControlAndClosestAlphabet(symbol_alphabet.SymbolAlphabet):
-    
-    class LastUpdatedOrderedDict(OrderedDict):
-        """Store items in the order the keys were last added"""
-        def __setitem__(self, key, value):
-            if key in self:
-                del self[key]
-            OrderedDict.__setitem__(self, key, value)
-    
-    class GranularityAlphabet():
-        def __init__(self, distance_operator, limit_distance=0.0, counter_number=100):
-            self.counter_number = counter_number
-            self.counters = {}
-        
-        def _find_symbol(self, normalized, symbol_shift):
-            """returns a tuple: (similar_symbol, closest_symbol). Similar symbol has distance < limit_distance, closest_symbol is the similar_symbol or has minimal distance among all symbols in alphabet"""
-            closest = None
-            min_distance = float('inf')
-            for key_symbol in self.distances.keys():
-                if key_symbol.symbol_shift == symbol_shift: 
-                    actual_distance = self.distance_operator.distance(key_symbol.series, normalized)
-                    if actual_distance < min_distance:
-                        closest = key_symbol
-                        min_distance = actual_distance
-                    if  actual_distance < self.limit_distance:
-                        return (key_symbol, closest, min_distance)
-            return (None, closest. min_distance)
-        
-        def _add(self, normalized, symbol_shift):
-            new_symbol = s.Symbol(normalized, symbol_shift=symbol_shift)
-            self.counters[new_symbol] = 1
-            return new_symbol
-        
-        def add_ascended(self, symbol, count):
-            """
-            Add symol from coarser alphabet to freed place.
-            This method can be called only if symbols were removed from the alphabet and we want to replace them by the most frequent from coarser granularity alphabet
-            """
-            self.counters[symbol] = count
-            
-        def remove(self, symbol):
-            """Removes a symbols from counters and from distance matrix"""
-            """Can be called from get_similar method of this alphabet or when ascending symbol to finer alphabet"""
-            return self.counters.pop(symbol, None)
-            
-        def get_similar(self, normalized, symbol_shift):
-            """Returns a quadruplet, (similar symbol from the alphabet, closest symbol, distance of the closest symbol list of symbols removed from the alphabet)"""
-            # todo, treba porozmyslat, ci sa nema znizovat pocetnost inym cislom ako 1. Podla mna to ale teraz nieje potrebne
-            similar_symbol, closest_symbol, min_distance = self._find_symbol(normalized, symbol_shift)
-            if similar_symbol:
-                self.counters[similar_symbol] = self.counters[similar_symbol] + 1
-                return (similar_symbol, None, float('inf'), [])
-            elif len(self.counters) < self.counter_number: # there is space in the alphabet, add the symbol then 
-                return (self._add(normalized, symbol_shift), None, float('inf'), [])
-            else:
-                # no match found, no room left, we have to lower counters and possibly delete items from alphabet
-                symbol_list = self.counters.keys() 
-                removed = []
-                for key_symbol in symbol_list:
-                    self.counters[key_symbol] = self.counters[key_symbol] - 1
-                    if self.counters[key_symbol] <= 0:
-                        self.remove(key_symbol)
-                        removed.append(key_symbol)
-                return (None, closest_symbol, min_distance, removed)
-        
-        
     
     def __init__(self, distance_operator, limit_distance=[1.0, 2.0], counter_number=[100,100]):
         """limit_distance and counter_number are lists of attributes of multiple granularity alphabets ordered from finer to coarser granularity"""
@@ -83,7 +85,7 @@ class GranularityControlAndClosestAlphabet(symbol_alphabet.SymbolAlphabet):
 
     def symbols(self):
         """Returns a list of stored symbols"""
-        return reduce(lambda x, y: x+y, [alphabet.counters.keys() for alphabet in self.alphabets]
+        return reduce(lambda x, y: x+y, [alphabet.counters.keys() for alphabet in self.alphabets])
 
     def distance(self, a, b):
         """Returns distacne between symbols"""

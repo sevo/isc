@@ -5,12 +5,12 @@ import numpy as np
 class IncrementalTransformer:
     def __init__(self, window_size, step_size, limit_distance,
                  normalization=norm.ZNormalization,
-                 distance_operator=euclidean_operator.EuclideanOperator(), symbol_alphabet=distance_matrix.DistanceMatrix):
+                 distance_operator=euclidean_operator.EuclideanOperator(), symbol_alphabet=None):
         self.limit_distance = limit_distance
         self.window_size = window_size
         self.step_size = step_size
         self.distance_operator = distance_operator
-        self.symbol_alphabet = symbol_alphabet(distance_operator, limit_distance)
+        self.symbol_alphabet = symbol_alphabet or distance_matrix.DistanceMatrix(distance_operator, limit_distance)
         self.normalization = normalization
         self.pattern_queue = [] # queue of started symbols
         self.counter = 0 # processed values counter
@@ -57,13 +57,22 @@ class IncrementalTransformer:
         for point in whole_series:
             new_symbol = self.add(point)
             if new_symbol is not None:
-                symbol_series.append(new_symbol)
+                if new_symbol.unscaled: # if we really found a symbol in the alphabet, add it to the list of symbols. Else return None
+                    symbol_series.append(new_symbol)
+                else:
+                    symbol_series.append(None)
+                    
 
         return symbol_series
 
-    def reconstruct(self, symbols):
+    def reconstruct(self, symbols, symbol_length):
         result = np.array([])
         for symbol in symbols:
-            result = np.concatenate((result, symbol.denormalized_series()))
+            part = None
+            if symbol:
+                part = symbol.denormalized_series()
+            else:
+                part = np.array([np.nan]*symbol_length)
+            result = np.concatenate((result, part))
         return result
 

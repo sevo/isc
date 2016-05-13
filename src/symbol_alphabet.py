@@ -14,6 +14,10 @@ class SymbolAlphabet:
     @abc.abstractmethod
     def symbols(self):
         """Returns a list of stored symbols"""
+        
+    def match(self, symbol):
+        """Returns True if symbol is in alphabet else False"""
+        return True if symbol in self.symbols() else False
 
     @abc.abstractmethod
     def distance(self, a, b):

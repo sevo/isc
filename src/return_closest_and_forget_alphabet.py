@@ -54,7 +54,7 @@ class ReturnClosestAndForgetAlphabet(symbol_alphabet.SymbolAlphabet):
         """Removes a symbols from counters and from distance matrix"""
         self.counters.pop(symbol, None)
         
-        for _, other_distances in enumerate(self.distances):
+        for _, other_distances in self.distances.iteritems():
             other_distances.pop(symbol, None)
         self.distances.pop(symbol, None)
         

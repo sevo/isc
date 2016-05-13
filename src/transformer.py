@@ -4,7 +4,7 @@ import normalization as norm
 class Transformer:
     def __init__(self, window_size, step_size, limit_distance,
                  normalization=norm.ZNormalization,
-                 distance_operator=euclidean_operator.EuclideanOperator(), symbol_alphabet=distance_matrix.DistanceMatrix):
+                 distance_operator=euclidean_operator.EuclideanOperator(), symbol_alphabet=None):
         """
         :param window_size: symbol length
         :param step_size: step between two symbols
@@ -17,7 +17,7 @@ class Transformer:
         self.window_size = window_size
         self.step_size = step_size
         self.distance_operator = distance_operator
-        self.symbol_alphabet = symbol_alphabet(distance_operator, limit_distance)
+        self.symbol_alphabet = symbol_alphabet or distance_matrix.DistanceMatrix(distance_operator, limit_distance)
         self.normalization = normalization
         self.pattern_queue = []
 
@@ -29,7 +29,10 @@ class Transformer:
         """
         normalized, scale_shift, scale_multiple = self.normalization.normalize(series)
         unscaled_symbol = self.symbol_alphabet.get_similar(normalized, symbol_shift)
-        return scaled_symbol.ScaledSymbol(unscaled_symbol, scale_shift, scale_multiple)
+        if unscaled_symbol:
+            return scaled_symbol.ScaledSymbol(unscaled_symbol, scale_shift, scale_multiple)
+        else:
+            return None
 
     def transform(self, whole_series):
         """

@@ -9,4 +9,7 @@ class ScaledSymbol:
     #         self.series, self.scale_shift, self.scale_multiple = normalization_class.normalize(self.unscaled.series)
 
     def denormalized_series(self):
-        return (self.unscaled.series * self.scale_multiple) + self.scale_shift
+        return self.denormalize(self.unscaled.series)
+        
+    def denormalize(self, series):
+        return (series * self.scale_multiple) + self.scale_shift
