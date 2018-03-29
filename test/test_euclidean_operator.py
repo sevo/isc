@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from ..src import euclidean_operator
+import euclidean_operator
 
 def test_operator():
     operator = euclidean_operator.EuclideanOperator()

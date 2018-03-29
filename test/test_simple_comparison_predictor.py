@@ -1,5 +1,5 @@
-from ..src import transformer
-from ..src.forecasting import simple_comparison_predictor as pred
+import transformer
+from forecasting import simple_comparison_predictor as pred
 import pandas as pd
 import pdb
 

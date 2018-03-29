@@ -1,5 +1,5 @@
-from ..src import incremental_transformer as it
-from ..src import normalization
+from ISC import incremental_transformer as it
+import normalization
 import pandas as pd
 import pdb
 

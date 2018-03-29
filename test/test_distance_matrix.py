@@ -1,4 +1,5 @@
-from ..src import distance_matrix, symbol, euclidean_operator
+from alphabet import distance_matrix
+import symbol, euclidean_operator
 import pandas as pd
 
 class TestDistanceMatrix:

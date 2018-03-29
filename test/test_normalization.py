@@ -1,4 +1,4 @@
-from ..src import normalization
+import normalization
 import numpy as np
 
 def test_z_normalization():

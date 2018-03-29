@@ -1,5 +1,5 @@
-from ..src import transformer
-from ..src import normalization
+import transformer
+import normalization
 import pandas as pd
 import pdb
 
