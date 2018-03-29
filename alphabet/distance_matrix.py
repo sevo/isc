@@ -1,5 +1,8 @@
+import sys
+sys.path.append("..")
+
 from . import symbol_alphabet
-from .. import symbol
+import symbol
 
 class DistanceMatrix(symbol_alphabet.SymbolAlphabet):
     def __init__(self, distance_operator, limit_distance=0.0):

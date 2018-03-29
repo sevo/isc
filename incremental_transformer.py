@@ -1,6 +1,6 @@
-from .alphabet import distance_matrix
-from . import euclidean_operator, scaled_symbol
-from . import normalization as norm
+from alphabet import distance_matrix
+import euclidean_operator, scaled_symbol
+import normalization as norm
 import numpy as np
 
 class IncrementalTransformer:
